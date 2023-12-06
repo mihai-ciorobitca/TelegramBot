@@ -1,11 +1,12 @@
-##TelegramBot Automation Scripts 🚀
+# TelegramBot Automation Scripts 🚀
+
 
 Welcome to the TelegramBot repository, where we bring you cool and useful Telegram automation scripts!
 
-Tele Reminder 📅
+# Tele Reminder 📅
 Never forget to stay hydrated with Tele Reminder! This nifty script sends gentle reminders to drink water directly to your private Telegram group. The magic happens on PythonAnywhere, where a scheduled task runs the script every hour at your specified minute. Simply create a PythonAnywhere account, set up a programmatic task, and let the Telegram library work its wonders with your bot TOKEN.
 
-Tele Weather ☀️
+# Tele Weather ☀️
 Get instant weather updates with Tele Weather! This interactive bot allows you to send commands and receive weather information based on city queries. To make this bot even more responsive, set up a webhook pointing to a Flask app hosted 24/7 on PythonAnywhere at zero costs. This ensures your bot stays alive and kicking anytime, ready to deliver the latest weather details at your command.
 
 How to Use
