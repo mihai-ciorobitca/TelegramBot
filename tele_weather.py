@@ -18,8 +18,12 @@ def webhook():
     data = request.json
     
     # Extract relevant information from the incoming message
-    chat_id = data['message']['chat']['id']
-    message_text = data['message']['text']
+    if "message" in data:
+        message_type = "message"
+    else:
+        message_type = "edited_message"
+    chat_id = data[message_type]['chat']['id']
+    message_text = data[message_type]['text']
     
     # Load user states from a JSON file
     with open('./user_states.json') as file:
