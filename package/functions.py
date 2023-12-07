@@ -18,7 +18,7 @@ def get_weather(city, KEY):
         weather_data = r.json()
 
         # Check if the response indicates a successful weather data retrieval (cod 200)
-        if weather_data["cod"] == "200":
+        if weather_data["cod"] == 200:
             # Format the weather information into a human-readable message
             template = """
             Weather Report for {city}, {country}
