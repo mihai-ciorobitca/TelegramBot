@@ -2,6 +2,7 @@ from fastapi import FastAPI, Request
 from requests import post, get
 from dotenv import load_dotenv
 from os import getenv
+from uvicorn import run
 
 load_dotenv()
 
@@ -52,3 +53,6 @@ async def webhook(request: Request):
 
     # Return a successful response
     return {"message": "OK"}
+
+if __name__ == "__main__":
+    run(app, host="0.0.0.0", port=8000)
