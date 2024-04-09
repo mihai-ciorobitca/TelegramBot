@@ -1,1 +1,1 @@
-python-telegram-bot
+sanic==19.6.0
