@@ -25,10 +25,10 @@ response = get(url)
 app = FastAPI()
 
 # Function to send message to Telegram
-async def send_message(chat_id, text):
+def send_message(chat_id, text):
     api_url = f"https://api.telegram.org/bot{BOT_TOKEN}/sendMessage"
     params = {"chat_id": chat_id, "text": text}
-    await post(api_url, json=params)
+    post(api_url, json=params)
 
 # Root endpoint
 @app.get("/")
@@ -37,8 +37,8 @@ def root():
 
 # Webhook endpoint
 @app.post("/telebot")
-async def webhook(request: Request):
-    data = await request.json()
+def webhook(request: Request):
+    data = request.json()
     if "message" in data:
         message_type = "message"
     else:
@@ -50,10 +50,7 @@ async def webhook(request: Request):
     logger.info(f"Incoming message: {message_text}")
 
     # Send message to chat
-    await send_message(chat_id, message_text)
-
-    # Return a successful response
-    return {"message": "OK"}
+    send_message(chat_id, message_text) 
 
 # Run the FastAPI app
 if __name__ == "__main__":
