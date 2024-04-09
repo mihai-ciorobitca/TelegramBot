@@ -29,6 +29,9 @@ async def send_message(chat_id, text):
     params = {"chat_id": chat_id, "text": text}
     await post(api_url, json=params)
 
+@app.get("/")
+async def root():
+    return {"message": "Telegram Bot"}
 
 @app.post("/telebot")
 async def webhook(request: Request):
