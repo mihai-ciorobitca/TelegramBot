@@ -1,9 +1,12 @@
 {
-    "functions": {
-      "api": {
-        "handler": "bot.handler",
-        "runtime": "python3.8"
-      }
+  "version": 2,
+  "builds": [
+    {
+      "src": "main.py",
+      "use": "@vercel/python"
     }
-  }
-  
+  ],
+  "routes": [
+    { "src": "/", "dest": "main.py" }
+  ]
+}
