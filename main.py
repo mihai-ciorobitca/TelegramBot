@@ -1,18 +1,22 @@
-from fastapi import FastAPI, Request # to create the FastAPI app 
-from requests import post # to send the POST request
-from dotenv import load_dotenv # to load the .env file
-from os import getenv # to get the token from the .env file
+from fastapi import FastAPI, Request
+from requests import post, get
+from dotenv import load_dotenv
+from os import getenv
 
-load_dotenv() # load the .env file
+load_dotenv()
 
-CHAT_ID = getenv("ID") # get the chat ID from the .env file
-TOKEN = getenv("TOKEN") # get the token from the .env file
+CHAT_ID = getenv("CHAT_ID")
+BOT_TOKEN = getenv("BOT_TOKEN")
+VERCEL_URL = getenv("VERCEL_URL")
 
-# Initialize the Flask app
+url = f"https://api.telegram.org/bot{BOT_TOKEN}/setWebhook?url={VERCEL_URL}/telebot"
+response = get(url)
+
+# Initialize the FastAPI app
 app = FastAPI()
 
 
-def send_message(chat_id, text):
+async def send_message(chat_id, text):
     """
     Send a message to a Telegram chat via the Telegram Bot API.
 
@@ -22,10 +26,10 @@ def send_message(chat_id, text):
     """
     api_url = f"https://api.telegram.org/bot{TOKEN}/sendMessage"
     params = {"chat_id": chat_id, "text": text}
-    post(api_url, json=params)
+    await post(api_url, json=params)
 
 
-@app.post("/telebot") 
+@app.post("/telebot")
 async def webhook(request: Request):
     """
     Handle incoming webhook from Telegram
@@ -33,7 +37,7 @@ async def webhook(request: Request):
     If the POST request contains a message, then we process it,
     otherwise we process an edited message.
     """
-    data = await request.json
+    data = await request.json()
     if "message" in data:
         message_type = "message"
     else:
@@ -44,8 +48,7 @@ async def webhook(request: Request):
     message_text = data[message_type]["text"]
 
     # Send the message to the chat
-    send_message(chat_id, message_text)
+    await send_message(chat_id, message_text)
 
     # Return a successful response
     return {"message": "OK"}
- 
