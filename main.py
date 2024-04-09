@@ -30,7 +30,7 @@ async def send_message(chat_id, text):
     await post(api_url, json=params)
 
 @app.get("/")
-async def root():
+def root():
     return {"message": "Telegram Bot"}
 
 @app.post("/telebot")
