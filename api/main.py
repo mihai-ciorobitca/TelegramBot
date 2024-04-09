@@ -1,57 +1,40 @@
-from logging import getLogger, basicConfig, INFO
-from fastapi import FastAPI, Request
-from requests import post, get
+from flask import Flask, request
+from telebot import TeleBot, types
 from dotenv import load_dotenv
 from os import getenv
-from uvicorn import run
 
-# Load environment variables
 load_dotenv()
 
-# Set up logging
-basicConfig(level=INFO)
-logger = getLogger(__name__)
+VERCEL_URL = getenv('VERCEL_URL')
+BOT_TOKEN = getenv('BOT_TOKEN')
 
-# Constants from environment variables
-CHAT_ID = getenv("CHAT_ID")
-BOT_TOKEN = getenv("BOT_TOKEN")
-VERCEL_URL = getenv("VERCEL_URL")
+# Initialize Flask app
+app = Flask(__name__)
 
-# Set up webhook
-url = f"https://api.telegram.org/bot{BOT_TOKEN}/setWebhook?url={VERCEL_URL}/telebot"
-response = get(url)
+# Initialize Telebot with your bot token
+bot = TeleBot(BOT_TOKEN)
 
-# Initialize the FastAPI app
-app = FastAPI()
+# Define route for receiving webhook
+@app.route('/webhook', methods=['POST'])
+def webhook():
+    update = types.Update.de_json(request.json)
+    bot.process_new_updates([update])
+    return '', 200
 
-# Function to send message to Telegram
-def send_message(chat_id, text):
-    api_url = f"https://api.telegram.org/bot{BOT_TOKEN}/sendMessage"
-    params = {"chat_id": chat_id, "text": text}
-    post(api_url, json=params)
+# Define handler for /start and /help commands
+@bot.message_handler(commands=['start', 'help'])
+def send_welcome(message):
+    bot.reply_to(message, "Howdy, how are you doing?")
 
-# Root endpoint
-@app.get("/")
-def root():
-    return {"message": "Telegram Bot"}
+# Define handler for all other messages
+@bot.message_handler(func=lambda message: True)
+def echo_all(message):
+    bot.reply_to(message, message.text)
 
-# Webhook endpoint
-@app.post("/telebot")
-def webhook(request: Request):
-    data = request.json()
-    if "message" in data:
-        message_type = "message"
-    else:
-        message_type = "edited_message"
-    chat_id = data[message_type]["chat"]["id"]
-    message_text = data[message_type]["text"]
-    
-    # Log incoming message
-    logger.info(f"Incoming message: {message_text}")
-
-    # Send message to chat
-    send_message(chat_id, message_text) 
-
-# Run the FastAPI app
-if __name__ == "__main__":
-    run(app, host="0.0.0.0", port=8000)
+# Start Flask app
+if __name__ == '__main__':
+    # Set webhook
+    bot.remove_webhook()
+    bot.set_webhook(url=f"{VERCEL_URL}/webhook")
+    # Run Flask app
+    app.run(host="0.0.0.0", port=8000) 
