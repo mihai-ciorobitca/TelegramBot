@@ -1,8 +1,9 @@
 {
-    "rewrites": [
-        {
-            "source": "/(.*)",
-            "destination": "/api/main"
-        }
-    ]
-}
+    "functions": {
+      "api": {
+        "handler": "bot.handler",
+        "runtime": "python3.8"
+      }
+    }
+  }
+  

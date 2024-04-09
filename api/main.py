@@ -1,40 +1,26 @@
-from flask import Flask, request
-from telebot import TeleBot, types
-from dotenv import load_dotenv
+from telegram.ext import Updater, CommandHandler
 from os import getenv
+from dotenv import load_dotenv
 
 load_dotenv()
 
-VERCEL_URL = getenv('VERCEL_URL')
-BOT_TOKEN = getenv('BOT_TOKEN')
+def start(update, context):
+    update.message.reply_text('Hello! I am your Telegram bot.')
 
-# Initialize Flask app
-app = Flask(__name__)
+def help(update, context):
+    update.message.reply_text('You can use /start to begin and /help to get assistance.')
 
-# Initialize Telebot with your bot token
-bot = TeleBot(BOT_TOKEN)
+def handler(event, context):
+    # Initialize bot
+    updater = Updater(getenv('BOT_TOKEN'), use_context=True)
+    dp = updater.dispatcher
 
-# Define route for receiving webhook
-@app.route('/webhook', methods=['POST'])
-def webhook():
-    update = types.Update.de_json(request.json)
-    bot.process_new_updates([update])
-    return '', 200
+    # Register handlers
+    dp.add_handler(CommandHandler("start", start))
+    dp.add_handler(CommandHandler("help", help))
 
-# Define handler for /start and /help commands
-@bot.message_handler(commands=['start', 'help'])
-def send_welcome(message):
-    bot.reply_to(message, "Howdy, how are you doing?")
+    # Start the Bot
+    updater.start_polling()
 
-# Define handler for all other messages
-@bot.message_handler(func=lambda message: True)
-def echo_all(message):
-    bot.reply_to(message, message.text)
-
-# Start Flask app
-if __name__ == '__main__':
-    # Set webhook
-    bot.remove_webhook()
-    bot.set_webhook(url=f"{VERCEL_URL}/webhook")
-    # Run Flask app
-    app.run(host="0.0.0.0", port=8000) 
+    # Run the bot until you press Ctrl-C
+    updater.idle()
