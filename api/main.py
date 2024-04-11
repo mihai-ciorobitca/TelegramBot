@@ -2,8 +2,11 @@ from requests import post
 from flask import Flask, request
 from dotenv import load_dotenv
 from os import getenv
+from logging import basicConfig, ERROR, error, exception
 
 load_dotenv()
+
+basicConfig(filename='error.log', level=ERROR)
 
 app = Flask(__name__)
 
@@ -29,12 +32,18 @@ def get_answer(data):
 
 @app.route("/webhook", methods=["POST"])
 def webhook():
-    data = request.json
-    answer = get_answer(data)
-    status = send_message(answer)
-    if status == 200:
-        return "Message sent"
-    return "An error occured"
+    try:
+        data = request.json
+        answer = get_answer(data)
+        status = send_message(answer)
+        if status == 200:
+            return "Message sent"
+        else:
+            error("Failed to send message")
+            return "An error occurred while sending the message", 500
+    except Exception as e:
+        exception(f"An error occurred: {e}") 
+        return "An unexpected error occurred", 500
 
 
 @app.route("/")
