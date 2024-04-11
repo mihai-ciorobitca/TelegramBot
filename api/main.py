@@ -1,23 +1,23 @@
+from fastapi import FastAPI, Request 
 from requests import post, get
-from flask import Flask, request
 from dotenv import load_dotenv
 from os import getenv
 
 load_dotenv()
 
-
-app = Flask(__name__)
+app = FastAPI()
 
 BOT_TOKEN = getenv("BOT_TOKEN")
 BOT_URL = f"https://api.telegram.org/bot{BOT_TOKEN}"
 WEBHOOK_URL = f"{BOT_URL}/setwebhook?url=https://mihai-telegram-bot.vercel.app/webhook"
 
+ 
 
 def send_message(answer):
     post(url=f"{BOT_URL}/sendMessage", json=answer)
 
 
-def get_answer(data):
+def get_answer(data: dict):
     chat_id = data["message"]["chat"]["id"]
     message = data["message"]["text"]
     answer = {
@@ -27,18 +27,15 @@ def get_answer(data):
     return answer
 
 
-@app.route("/webhook", methods=["POST"])
-def webhook():
-    data = request.json
+@app.post("/webhook")
+async def webhook(request: Request):
+    data = await request.json()
     answer = get_answer(data)
     send_message(answer)
-    return "Message sent"
+    return {"message": "Message sent"}
 
 
-@app.route("/")
-def index():
+@app.get("/")
+async def index():
     response = get(url=WEBHOOK_URL)
-    return  response.json()
-
-if __name__ == "__main__":
-    app.run(host="localhost", port=8080)
+    return response.json()
