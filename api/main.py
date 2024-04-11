@@ -37,3 +37,6 @@ def webhook():
 @app.route("/")
 def index():
     return "Bot is running"
+
+if __name__ == '__main__':
+    app.run(host='localhost', port=8080)
