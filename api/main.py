@@ -1,41 +1,44 @@
-import requests
-from flask import Flask, request, jsonify
+from requests import post, get
+from flask import Flask, request
+from dotenv import load_dotenv
+from os import getenv
+
+load_dotenv()
+
 
 app = Flask(__name__)
 
-BOT_URL = 'https://api.telegram.org/bot6691717835:AAFPCMjZwI3sUgyYOfz_JcS_3ais3hXCIGs'
+BOT_TOKEN = getenv("BOT_TOKEN")
+BOT_URL = f"https://api.telegram.org/bot{BOT_TOKEN}"
+WEBHOOK_URL = f"{BOT_URL}/setwebhook?url=https://mihai-telegram-bot.vercel.app"
 
-def get_chat_id(data): 
-    chat_id = data['message']['chat']['id']
-    return chat_id
 
-def get_message(data): 
-    message_text = data['message']['text']
-    return message_text
+def send_message(answer):
+    post(url=f"{BOT_URL}/sendMessage", json=answer)
 
-def send_message(prepared_data): 
-    message_url = BOT_URL + '/sendMessage'
-    requests.post(message_url, json=prepared_data)
 
-def change_text_message(text):
-    return text[::-1]
-
-def prepare_data_for_answer(data):
-    message = get_message(data)
-    answer = change_text_message(message)
-    chat_id = get_chat_id(data)
-    json_data = {
+def get_answer(data):
+    chat_id = data["message"]["chat"]["id"]
+    message = data["message"]["text"]
+    answer = {
         "chat_id": chat_id,
-        "text": answer,
+        "text": message,
     }
-    return json_data
+    return answer
 
-@app.route('/', methods=['POST'])
-def post_handler():
+
+@app.route("/webhook", methods=["POST"])
+def webhook():
     data = request.json
-    answer_data = prepare_data_for_answer(data)
-    send_message(answer_data)
-    return jsonify(success=True)
+    answer = get_answer(data)
+    send_message(answer)
+    return "Message sent"
 
-if __name__ == '__main__':
-    app.run(host='localhost', port=8080)
+
+@app.route("/")
+def index():
+    response = get(url=WEBHOOK_URL)
+    return response.json()
+
+if __name__ == "__main__":
+    app.run(host="localhost", port=8080)
