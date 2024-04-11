@@ -1,42 +1,41 @@
-from requests import post
-from flask import Flask, request
-from dotenv import load_dotenv
-from os import getenv
-
-load_dotenv()
-
+import requests
+from flask import Flask, request, jsonify
 
 app = Flask(__name__)
 
-BOT_TOKEN = getenv("BOT_TOKEN")
-BOT_URL = f"https://api.telegram.org/bot{BOT_TOKEN}"
+BOT_URL = 'https://api.telegram.org/bot6691717835:AAFPCMjZwI3sUgyYOfz_JcS_3ais3hXCIGs'
 
+def get_chat_id(data): 
+    chat_id = data['message']['chat']['id']
+    return chat_id
 
-def send_message(answer):
-    post(url=f"{BOT_URL}/sendMessage", json=answer)
+def get_message(data): 
+    message_text = data['message']['text']
+    return message_text
 
+def send_message(prepared_data): 
+    message_url = BOT_URL + '/sendMessage'
+    requests.post(message_url, json=prepared_data)
 
-def get_answer(data):
-    chat_id = data["message"]["chat"]["id"]
-    message = data["message"]["text"]
-    answer = {
+def change_text_message(text):
+    return text[::-1]
+
+def prepare_data_for_answer(data):
+    message = get_message(data)
+    answer = change_text_message(message)
+    chat_id = get_chat_id(data)
+    json_data = {
         "chat_id": chat_id,
-        "text": message,
+        "text": answer,
     }
-    return answer
+    return json_data
 
-
-@app.route("/webhook", methods=["POST"])
-def webhook():
+@app.route('/', methods=['POST'])
+def post_handler():
     data = request.json
-    answer = get_answer(data)
-    send_message(answer)
-    return "Message sent"
-
-
-@app.route("/")
-def index():
-    return "Bot is running"
+    answer_data = prepare_data_for_answer(data)
+    send_message(answer_data)
+    return jsonify(success=True)
 
 if __name__ == '__main__':
     app.run(host='localhost', port=8080)
