@@ -38,7 +38,8 @@ def webhook():
 @app.route("/")
 def index():
     response = get(url=WEBHOOK_URL)
-    return response.json()
+    return WEBHOOK_URL
+# response.json()
 
 if __name__ == "__main__":
     app.run(host="localhost", port=8080)
