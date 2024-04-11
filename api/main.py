@@ -1,4 +1,4 @@
-from requests import post
+from requests import post, get
 from flask import Flask, request
 from dotenv import load_dotenv
 from os import getenv
@@ -10,6 +10,7 @@ app = Flask(__name__)
 
 BOT_TOKEN = getenv("BOT_TOKEN")
 BOT_URL = f"https://api.telegram.org/bot{BOT_TOKEN}"
+WEBHOOK_URL = f"{BOT_URL}/setwebhook?url=https://mihai-telegram-bot.vercel.app/webhook"
 
 
 def send_message(answer):
@@ -36,7 +37,8 @@ def webhook():
 
 @app.route("/")
 def index():
-    return "Bot is running"
+    response = get(url=WEBHOOK_URL)
+    return  response.json()
 
-if __name__ == '__main__':
-    app.run(host='localhost', port=8080)
+if __name__ == "__main__":
+    app.run(host="localhost", port=8080)
