@@ -1,4 +1,4 @@
-from fastapi import FastAPI, Request 
+from fastapi import FastAPI, Request, Header, HTTPException
 from requests import post, get
 from dotenv import load_dotenv
 from os import getenv
@@ -7,18 +7,22 @@ load_dotenv()
 
 app = FastAPI()
 
-CHAT_ID = getenv("CHAT_ID")   
+CHAT_ID = getenv("CHAT_ID")
+URL_TOKEN = getenv("URL_TOKEN")
 BOT_TOKEN = getenv("BOT_TOKEN")
 BOT_URL = f"https://api.telegram.org/bot{BOT_TOKEN}"
 WEBHOOK_URL = f"{BOT_URL}/setwebhook?url=https://mihai-telegram-bot.vercel.app/webhook"
 REMINDER_URL = f"{BOT_URL}/sendreminder"
 
-@app.get("/send-reminder") 
-def send_reminder():
+
+@app.post("/send-reminder")
+def send_reminder(request: Request, token: str = Header(None)):
+    if token != URL_TOKEN:
+        raise HTTPException(status_code=401, detail="Unauthorized")
     answer = {
         "chat_id": CHAT_ID,
         "text": "ceau",
-    } 
+    }
     response = post(url=f"{BOT_URL}/sendMessage", json=answer)
     return response.json()
 
@@ -47,5 +51,4 @@ async def webhook(request: Request):
 
 @app.get("/")
 async def index():
-    response = get(url=WEBHOOK_URL)
-    return response.json()
+    return {"message": "Alive"}
