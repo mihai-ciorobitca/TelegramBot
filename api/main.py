@@ -18,8 +18,7 @@ def send_reminder():
     answer = {
         "chat_id": CHAT_ID,
         "text": "ceau",
-    }
-    return answer 
+    } 
     response = post(url=f"{BOT_URL}/sendMessage", json=answer)
     return response.json()
 
