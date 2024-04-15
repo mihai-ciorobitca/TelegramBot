@@ -7,11 +7,21 @@ load_dotenv()
 
 app = FastAPI()
 
+CHAT_ID = getenv("CHAT_ID")   
 BOT_TOKEN = getenv("BOT_TOKEN")
 BOT_URL = f"https://api.telegram.org/bot{BOT_TOKEN}"
 WEBHOOK_URL = f"{BOT_URL}/setwebhook?url=https://mihai-telegram-bot.vercel.app/webhook"
+REMINDER_URL = f"{BOT_URL}/sendreminder"
 
- 
+@app.get("/send-reminder") 
+def send_reminder():
+    answer = {
+        "chat_id": CHAT_ID,
+        "text": "ceau",
+    }
+    response = post(url=f"{BOT_URL}/sendMessage", json=answer)
+    return response.json()
+
 
 def send_message(answer):
     post(url=f"{BOT_URL}/sendMessage", json=answer)
