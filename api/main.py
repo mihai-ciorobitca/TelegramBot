@@ -16,7 +16,7 @@ REMINDER_URL = f"{BOT_URL}/sendreminder"
 
 
 @app.post("/send-reminder/{text}")
-def send_reminder(request: Request, token: str = Header(None), test: str):
+def send_reminder(request: Request, text: str, token: str = Header(None):
     """
     if token != URL_TOKEN:
         raise HTTPException(status_code=401, detail="Unauthorized")
