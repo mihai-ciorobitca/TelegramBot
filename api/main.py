@@ -15,21 +15,21 @@ WEBHOOK_URL = f"{BOT_URL}/setwebhook?url=https://mihai-telegram-bot.vercel.app/w
 REMINDER_URL = f"{BOT_URL}/sendreminder"
 
 
-@app.post("/send-reminder")
+@app.post("/send-reminder/<text>")
 def send_reminder(request: Request, token: str = Header(None)):
+    """
     if token != URL_TOKEN:
         raise HTTPException(status_code=401, detail="Unauthorized")
+    """
     answer = {
         "chat_id": CHAT_ID,
-        "text": "ceau",
+        "text": text,
     }
     response = post(url=f"{BOT_URL}/sendMessage", json=answer)
     return response.json()
 
-
 def send_message(answer):
     post(url=f"{BOT_URL}/sendMessage", json=answer)
-
 
 def get_answer(data: dict):
     chat_id = data["message"]["chat"]["id"]
